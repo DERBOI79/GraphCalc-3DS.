@@ -1,0 +1,34 @@
+
+name: Build GraphCalc 3DS
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          dkp-pacman -Sy --noconfirm 3dstools
+          dkp-pacman -S --noconfirm makerom
+
+      - name: Build GraphCalc
+        run: |
+          export PATH="$DEVKITPRO/tools/bin:$PATH"
+          make clean
+          make
+
+      - name: Upload builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: GraphCalc-builds
+          path: |
+            graphcalc.3dsx
+            graphcalc.cia
